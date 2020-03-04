@@ -78,7 +78,7 @@ def data_checker(shift, shift_number, TBM_number, fault_code, fault_code_descrip
         if not pattern.match(fault_delay):
             result += 'Поле "Длительность сбоя" должно содержать только цифры\n'
 
-    if (operator == ''):
+    if operator == '':
         result += 'Поле "Оператор" не может быть пустым\n'
 
     return result
@@ -132,8 +132,9 @@ class main_Ui(QtWidgets.QMainWindow):
         self.pushButton_Save.clicked.connect(self.action_pushButton_Save)
 
         self.current_date = QtCore.QDate.currentDate()
-        self.field_dateEdit_Date = self.findChild(QtWidgets.QDateEdit, 'dateEdit_Date')
-        self.field_dateEdit_Date.setDate(self.current_date)
+        self.dateEdit_Date.setDate(self.current_date)
+        # self.field_dateEdit_Date = self.findChild(QtWidgets.QDateEdit, 'dateEdit_Date')
+        # self.field_dateEdit_Date.setDate(self.current_date)
 
         self.comboBox_Fault_Code.activated.connect(self.change_list_values)
 
@@ -216,6 +217,7 @@ class main_Ui(QtWidgets.QMainWindow):
             event.ignore()
 
 
-app = QtWidgets.QApplication(sys.argv)
-main_window = main_Ui()
-app.exec_()
+if __name__ == '__main__':
+    app = QtWidgets.QApplication(sys.argv)
+    main_window = main_Ui()
+    app.exec_()

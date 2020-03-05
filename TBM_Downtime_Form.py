@@ -1,5 +1,4 @@
-from PyQt5 import QtWidgets, uic
-from PyQt5 import QtGui, QtCore
+from PyQt5 import QtWidgets, QtCore, uic
 import csv
 import sys
 import pyodbc
@@ -17,6 +16,7 @@ OPERATOR_LIST = ('', 'A - Adjuster', 'M - Mechanical', 'O - Operator', 'P - PLC'
 TBM_MAX_NUMBER = 49
 TBM_LIST = tuple("TBM{:02d}".format(i) for i in range(1, TBM_MAX_NUMBER + 1))
 
+conn = pyodbc.connect('Driver={SQL Server};Server=' + SQL_SERVER_NAME + ';Database=' + DATABASE_NAME + ';Trusted_Connection=yes;')
 
 def read_CSV_for_lists(CSV_Path):
     raw_data = []
@@ -84,17 +84,8 @@ def data_checker(shift, shift_number, TBM_number, fault_code, fault_code_descrip
     return result
 
 
-def write_data_into_DB(db_values):
-    try:
-        conn = pyodbc.connect('Driver={SQL Server};'
-                              'Server=' + SQL_SERVER_NAME + ';'
-                              'Database=' + DATABASE_NAME + ';'
-                              'Trusted_Connection=yes;')
-
-        cursor = conn.cursor()
-    except BaseException as e:
-        main_window.plainTextEdit_Errors_Message.clear()
-        main_window.plainTextEdit_Errors_Message.insertPlainText(e)
+def write_data_into_DB(conn, db_values):
+    cursor = conn.cursor()
 
     try:
         cursor.execute("INSERT INTO [" + DATABASE_NAME + "].[dbo].[Main]"
@@ -110,16 +101,11 @@ def write_data_into_DB(db_values):
                                                          "VALUES (" + db_values + ")")
     except BaseException as e:
         main_window.plainTextEdit_Errors_Message.clear()
-        main_window.plainTextEdit_Errors_Message.insertPlainText(e)
+        main_window.plainTextEdit_Errors_Message.insertPlainText(str(e))
     else:
         conn.commit()
         main_window.plainTextEdit_Errors_Message.clear()
         main_window.plainTextEdit_Errors_Message.insertPlainText("Данные записаны")
-
-    # cursor.execute('SELECT * FROM TBM_Downtimes.dbo.Main')
-    #
-    # for row in cursor:
-    #     print('row = %r' % (row,))
 
 
 class main_Ui(QtWidgets.QMainWindow):
@@ -133,8 +119,6 @@ class main_Ui(QtWidgets.QMainWindow):
 
         self.current_date = QtCore.QDate.currentDate()
         self.dateEdit_Date.setDate(self.current_date)
-        # self.field_dateEdit_Date = self.findChild(QtWidgets.QDateEdit, 'dateEdit_Date')
-        # self.field_dateEdit_Date.setDate(self.current_date)
 
         self.comboBox_Fault_Code.activated.connect(self.change_list_values)
 
@@ -162,8 +146,8 @@ class main_Ui(QtWidgets.QMainWindow):
 
     def action_pushButton_Clean(self):
         self.current_date = QtCore.QDate.currentDate()
-        self.field_dateEdit_Date = self.findChild(QtWidgets.QDateEdit, 'dateEdit_Date')
-        self.field_dateEdit_Date.setDate(self.current_date)
+        self.dateEdit_Date = self.findChild(QtWidgets.QDateEdit, 'dateEdit_Date')
+        self.dateEdit_Date.setDate(self.current_date)
         self.comboBox_Fault_Code.setCurrentIndex(0)
         self.comboBox_Shift.setCurrentIndex(0)
         self.comboBox_Shift_Number.setCurrentIndex(0)
@@ -176,7 +160,7 @@ class main_Ui(QtWidgets.QMainWindow):
 
 
     def action_pushButton_Save(self):
-        date = (self.field_dateEdit_Date.date()).toPyDate()
+        date = (self.dateEdit_Date.date()).toPyDate()
         shift = self.comboBox_Shift.currentText()
         shift_number = self.comboBox_Shift_Number.currentText()
         TBM_number = self.comboBox_TBM_number.currentText()
@@ -203,7 +187,7 @@ class main_Ui(QtWidgets.QMainWindow):
         self.plainTextEdit_Errors_Message.insertPlainText(error_message)
 
         if error_message == '':
-            write_data_into_DB(text_line)
+            write_data_into_DB(conn, text_line)
 
 
     def closeEvent(self, event):

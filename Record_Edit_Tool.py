@@ -1,5 +1,4 @@
-from PyQt5 import QtWidgets, uic
-from PyQt5 import QtGui, QtCore
+from PyQt5 import QtWidgets, QtCore, uic
 import csv
 import sys
 import pyodbc
@@ -14,18 +13,19 @@ MAIN_UI_FORM_PATH = ".\\Edit_Tool_Main_Window.ui"
 # Sources for lists
 SHIFT_TIME = ('', 'День', 'Ночь')
 SHIFT_NUMBERS = ('', '1', '2', '3', '4')
-OPERATOR_LIST = ('', 'A - Adjuster', 'M - Mechanical', 'O - Operator', 'P - PLC', 'Q - Quality Engineer', 'V - VMI Spec')
-RECORD_TABLE_HEADERS = ('ID', 'Номер\nстанка', 'Код', 'Описание\nсбоя', 'Длительность', 'Оператор', 'Доп.\nинформация', 'Дата', 'Номер\nсмены', 'Смена', 'ХЗ Что')
+OPERATOR_LIST = (
+'', 'A - Adjuster', 'M - Mechanical', 'O - Operator', 'P - PLC', 'Q - Quality Engineer', 'V - VMI Spec')
+RECORD_TABLE_HEADERS = (
+'ID', 'Номер\nстанка', 'Код', 'Описание\nсбоя', 'Длительность', 'Оператор', 'Доп.\nинформация', 'Дата', 'Номер\nсмены',
+'Смена', 'ХЗ Что')
 
 # Source data for TBM list
 TBM_MAX_NUMBER = 49
 TBM_LIST = tuple("TBM{:02d}".format(i) for i in range(1, TBM_MAX_NUMBER + 1))
 
 # SQL connection string
-conn = pyodbc.connect('Driver={SQL Server};'
-                      'Server=' + SQL_SERVER_NAME + ';'
-                      'Database=' + DATABASE_NAME + ';'
-                      'Trusted_Connection=yes;')
+conn = pyodbc.connect('Driver={SQL Server};Server=' + SQL_SERVER_NAME + ';Database=' + DATABASE_NAME + ';Trusted_Connection=yes;')
+
 
 # This gets other lists
 def read_CSV_for_lists(CSV_Path):
@@ -93,49 +93,45 @@ def data_checker(shift, shift_number, TBM_number, fault_code, fault_code_descrip
 
     return result
 
+
 # Callable for deleting from DB
 def delete_from_DB(conn, id):
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM [TBM_Downtimes].[dbo].[Main] WHERE [ID] = '" + id + "'")
-    conn.commit()
+    try:
+        cursor.execute("DELETE FROM [TBM_Downtimes].[dbo].[Main] WHERE [ID] = '" + id + "'")
+        conn.commit()
+    except BaseException as e:
+        main_window.plainTextEdit_Errors_Message.insertPlainText(e)
+    else:
+        main_window.plainTextEdit_Errors_Message.insertPlainText("Запись удалена")
 
 
 def update_data_in_DB(conn, id, list_data):
-    text_line = "[TBM Number] = '{}', " \
-                "[Defect Code] = '{}', " \
-                "[Fault Description] = '{}', " \
-                "[Idle Time] = '{}', " \
-                "[Operator] = '{}', " \
-                "[Description Notes] = '{}', " \
-                "[Date] = '{}', " \
-                "[Shift Number] = '{}', " \
-                "[Shift Time] = '{}'".format()
+    text_line = "[TBM Number] = '{0}', " \
+                "[Defect Code] = '{1}', " \
+                "[Fault Description] = '{2}', " \
+                "[Idle Time] = '{3}', " \
+                "[Operator] = '{4}', " \
+                "[Description Notes] = '{6}', " \
+                "[Date] = '{5}', " \
+                "[Shift Number] = '{7}', " \
+                "[Shift Time] = '{8}'".format(*list_data)
 
+    print(list_data)
+    print("UPDATE [TBM_Downtimes].[dbo].[Main]"
+           " SET " + text_line +
+           " WHERE [ID] = '" + id + "'")
     cursor = conn.cursor()
-    cursor.execute( "UPDATE [TBM_Downtimes].[dbo].[Main]"
-                    "SET " + text_line +
-                    "WHERE [ID] = '" + id + "'")
-    conn.commit()
 
-    # try:
-    #     cursor.execute("INSERT INTO [" + DATABASE_NAME + "].[dbo].[Main]"
-    #                                                      "([TBM Number],"
-    #                                                      "[Defect Code],"
-    #                                                      "[Fault Description],"
-    #                                                      "[Idle Time],"
-    #                                                      "[Operator],"
-    #                                                      "[Description Notes],"
-    #                                                      "[Date],"
-    #                                                      "[Shift Number],"
-    #                                                      "[Shift Time]) "
-    #                                                      "VALUES (" + db_values + ")")
-    # except BaseException as e:
-    #     main_window.plainTextEdit_Errors_Message.clear()
-    #     main_window.plainTextEdit_Errors_Message.insertPlainText(e)
-    # else:
-    #     conn.commit()
-    #     main_window.plainTextEdit_Errors_Message.clear()
-    #     main_window.plainTextEdit_Errors_Message.insertPlainText("Данные записаны")
+    try:
+        cursor.execute("UPDATE [TBM_Downtimes].[dbo].[Main]"
+                        "SET " + text_line +
+                        "WHERE [ID] = '" + id + "'")
+        conn.commit()
+    except BaseException as e:
+        main_window.plainTextEdit_Errors_Message.insertPlainText(str(e))
+    else:
+        main_window.plainTextEdit_Errors_Message.insertPlainText("Запись обновлена")
 
 
 def read_data_from_DB(conn, date_to_select):
@@ -152,7 +148,6 @@ def read_data_from_DB(conn, date_to_select):
 
 def populate_table_with_data(raw_data):
     main_window.tableWidget_Records.setRowCount(len(raw_data))
-    # print(raw_data)
 
     for i, row in enumerate(raw_data):
         for j, col in enumerate(row):
@@ -206,17 +201,16 @@ class main_UI(QtWidgets.QMainWindow):
 
     def change_list_values(self):
         global FAULT_CODES_DESCRIPTION_LIST
-        FAULT_CODES_DESCRIPTION_LIST = get_list_for_fault_description_combobox(self.comboBox_Fault_Code.currentText(), raw_data)
+        FAULT_CODES_DESCRIPTION_LIST = get_list_for_fault_description_combobox(self.comboBox_Fault_Code.currentText(),
+                                                                               raw_data)
         FAULT_CODES_DESCRIPTION_LIST.append("")
         self.comboBox_Fault_Description.clear()
         self.comboBox_Fault_Description.addItems(sorted(FAULT_CODES_DESCRIPTION_LIST))
-
 
     def action_pushButton_Get_Records(self):
         date = (self.dateEdit_Selector.date()).toPyDate().strftime('%Y-%m-%d')
         raw_data = read_data_from_DB(conn, date)
         populate_table_with_data(raw_data)
-
 
     def action_table_click(self):
         indexes = self.tableWidget_Records.selectionModel().selectedIndexes()
@@ -243,7 +237,8 @@ class main_UI(QtWidgets.QMainWindow):
 
         record_fault_code_description = row_data[3]
         try:
-            self.comboBox_Fault_Description.setCurrentIndex(FAULT_CODES_DESCRIPTION_LIST.index(record_fault_code_description) + 1)
+            self.comboBox_Fault_Description.setCurrentIndex(
+                FAULT_CODES_DESCRIPTION_LIST.index(record_fault_code_description) + 1)
         except BaseException as e:
             print(e)
 
@@ -279,7 +274,6 @@ class main_UI(QtWidgets.QMainWindow):
         except BaseException as e:
             print(e)
 
-
     # def action_pushButton_Clean(self):
     #     self.current_date = QtCore.QDate.currentDate()
     #     self.field_dateEdit_Date = self.findChild(QtWidgets.QDateEdit, 'dateEdit_Date')
@@ -294,52 +288,68 @@ class main_UI(QtWidgets.QMainWindow):
     #     self.plainTextEdit_Additional_Info.clear()
     #     self.plainTextEdit_Errors_Message.clear()
 
-
     def action_pushButton_Delete_Record(self):
         if self.checkBox_Confirm_Delete.isChecked():
             print("Delete " + record_id)
-            # delete_from_DB(conn, record_id)
+            delete_from_DB(conn, record_id)
             self.action_pushButton_Get_Records()
             self.checkBox_Confirm_Delete.setChecked(False)
         else:
-            print("Check checkbox")
-
+            self.plainTextEdit_Errors_Message.insertPlainText("Для удаления нужно поставить флажок")
 
     def action_pushButton_Update_Record(self):
-        update_data_in_DB(conn, record_id, list_data)
-        print('Update')
+        try:
+            date = ((self.dateEdit_Date.date()).toPyDate()).strftime('%Y-%m-%d')
+            shift = self.comboBox_Shift.currentText()
+            shift_number = self.comboBox_Shift_Number.currentText()
+            TBM_number = self.comboBox_TBM_number.currentText()
+            fault_code = self.comboBox_Fault_Code.currentText()
+            fault_code_description = self.comboBox_Fault_Description.currentText()
+            fault_delay = self.lineEdit_Fault_Delay.text()
+            operator = self.comboBox_Operator.currentText()
+            additional_info = self.lineEdit_Additional_Info.text()
 
+            error_message = data_checker(shift, shift_number, TBM_number, fault_code, fault_code_description, fault_delay, operator)
+            self.plainTextEdit_Errors_Message.clear()
+            self.plainTextEdit_Errors_Message.insertPlainText(error_message)
+            list_data = [TBM_number, fault_code, fault_code_description, fault_delay, operator, date, additional_info, shift_number, shift]
 
-    def action_pushButton_Save(self):
-        date = (self.field_dateEdit_Date.date()).toPyDate()
-        shift = self.comboBox_Shift.currentText()
-        shift_number = self.comboBox_Shift_Number.currentText()
-        TBM_number = self.comboBox_TBM_number.currentText()
-        fault_code = self.comboBox_Fault_Code.currentText()
-        fault_code_description = self.comboBox_Fault_Description.currentText()
-        fault_delay = self.lineEdit_Delay.text()
-        operator = self.comboBox_Operator.currentText()
-        additional_info = self.plainTextEdit_Additional_Info.toPlainText()
+            if error_message == '':
+                update_data_in_DB(conn, record_id, list_data)
+                print('Update')
+        except BaseException as e:
+            print(e)
 
-        data_checker(shift, shift_number, TBM_number, fault_code, fault_code_description, fault_delay, operator)
-
-        text_line = "'{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}'".format(TBM_number,
-                                                                                           fault_code,
-                                                                                           fault_code_description,
-                                                                                           fault_delay,
-                                                                                           operator,
-                                                                                           additional_info,
-                                                                                           date.strftime('%Y-%m-%d'),
-                                                                                           shift_number,
-                                                                                           shift)
-
-        error_message = data_checker(shift, shift_number, TBM_number, fault_code, fault_code_description, fault_delay, operator).strip()
-        self.plainTextEdit_Errors_Message.clear()
-        self.plainTextEdit_Errors_Message.insertPlainText(error_message)
-
-        # if error_message == '':
-            # write_data_into_DB(text_line)
-
+    # def action_pushButton_Save(self):
+    #     date = (self.field_dateEdit_Date.date()).toPyDate()
+    #     shift = self.comboBox_Shift.currentText()
+    #     shift_number = self.comboBox_Shift_Number.currentText()
+    #     TBM_number = self.comboBox_TBM_number.currentText()
+    #     fault_code = self.comboBox_Fault_Code.currentText()
+    #     fault_code_description = self.comboBox_Fault_Description.currentText()
+    #     fault_delay = self.lineEdit_Delay.text()
+    #     operator = self.comboBox_Operator.currentText()
+    #     additional_info = self.plainTextEdit_Additional_Info.toPlainText()
+    #
+    #     data_checker(shift, shift_number, TBM_number, fault_code, fault_code_description, fault_delay, operator)
+    #
+    #     text_line = "'{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}'".format(TBM_number,
+    #                                                                                        fault_code,
+    #                                                                                        fault_code_description,
+    #                                                                                        fault_delay,
+    #                                                                                        operator,
+    #                                                                                        additional_info,
+    #                                                                                        date.strftime('%Y-%m-%d'),
+    #                                                                                        shift_number,
+    #                                                                                        shift)
+    #
+    #     error_message = data_checker(shift, shift_number, TBM_number, fault_code, fault_code_description, fault_delay,
+    #                                  operator).strip()
+    #     self.plainTextEdit_Errors_Message.clear()
+    #     self.plainTextEdit_Errors_Message.insertPlainText(error_message)
+    #
+    #     # if error_message == '':
+    #     # write_data_into_DB(text_line)
 
     def closeEvent(self, event):
         reply = QtWidgets.QMessageBox.question(self, 'Quit',

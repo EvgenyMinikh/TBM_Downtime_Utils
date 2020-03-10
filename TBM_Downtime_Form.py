@@ -18,6 +18,7 @@ TBM_LIST = tuple("TBM{:02d}".format(i) for i in range(1, TBM_MAX_NUMBER + 1))
 
 conn = pyodbc.connect('Driver={SQL Server};Server=' + SQL_SERVER_NAME + ';Database=' + DATABASE_NAME + ';Trusted_Connection=yes;')
 
+
 def read_CSV_for_lists(CSV_Path):
     raw_data = []
 
@@ -158,7 +159,6 @@ class main_Ui(QtWidgets.QMainWindow):
         self.plainTextEdit_Additional_Info.clear()
         self.plainTextEdit_Errors_Message.clear()
 
-
     def action_pushButton_Save(self):
         date = (self.dateEdit_Date.date()).toPyDate()
         shift = self.comboBox_Shift.currentText()
@@ -188,7 +188,6 @@ class main_Ui(QtWidgets.QMainWindow):
 
         if error_message == '':
             write_data_into_DB(conn, text_line)
-
 
     def closeEvent(self, event):
         reply = QtWidgets.QMessageBox.question(self, 'Quit',

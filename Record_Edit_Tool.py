@@ -106,6 +106,7 @@ def delete_from_DB(conn, id):
         main_window.plainTextEdit_Errors_Message.insertPlainText("Запись удалена")
 
 
+# Callable for updating data
 def update_data_in_DB(conn, id, list_data):
     text_line = "[TBM Number] = '{0}', " \
                 "[Defect Code] = '{1}', " \
@@ -117,10 +118,6 @@ def update_data_in_DB(conn, id, list_data):
                 "[Shift Number] = '{7}', " \
                 "[Shift Time] = '{8}'".format(*list_data)
 
-    print(list_data)
-    print("UPDATE [TBM_Downtimes].[dbo].[Main]"
-           " SET " + text_line +
-           " WHERE [ID] = '" + id + "'")
     cursor = conn.cursor()
 
     try:
@@ -274,20 +271,6 @@ class main_UI(QtWidgets.QMainWindow):
         except BaseException as e:
             print(e)
 
-    # def action_pushButton_Clean(self):
-    #     self.current_date = QtCore.QDate.currentDate()
-    #     self.field_dateEdit_Date = self.findChild(QtWidgets.QDateEdit, 'dateEdit_Date')
-    #     self.field_dateEdit_Date.setDate(self.current_date)
-    #     self.comboBox_Fault_Code.setCurrentIndex(0)
-    #     self.comboBox_Shift.setCurrentIndex(0)
-    #     self.comboBox_Shift_Number.setCurrentIndex(0)
-    #     self.comboBox_TBM_number.setCurrentIndex(0)
-    #     self.comboBox_Fault_Description.setCurrentIndex(0)
-    #     self.comboBox_Operator.setCurrentIndex(0)
-    #     self.lineEdit_Delay.clear()
-    #     self.plainTextEdit_Additional_Info.clear()
-    #     self.plainTextEdit_Errors_Message.clear()
-
     def action_pushButton_Delete_Record(self):
         if self.checkBox_Confirm_Delete.isChecked():
             print("Delete " + record_id)
@@ -316,40 +299,10 @@ class main_UI(QtWidgets.QMainWindow):
 
             if error_message == '':
                 update_data_in_DB(conn, record_id, list_data)
-                print('Update')
+                self.action_pushButton_Get_Records()
+                self.plainTextEdit_Errors_Message.insertPlainText("Запись обновлена")
         except BaseException as e:
             print(e)
-
-    # def action_pushButton_Save(self):
-    #     date = (self.field_dateEdit_Date.date()).toPyDate()
-    #     shift = self.comboBox_Shift.currentText()
-    #     shift_number = self.comboBox_Shift_Number.currentText()
-    #     TBM_number = self.comboBox_TBM_number.currentText()
-    #     fault_code = self.comboBox_Fault_Code.currentText()
-    #     fault_code_description = self.comboBox_Fault_Description.currentText()
-    #     fault_delay = self.lineEdit_Delay.text()
-    #     operator = self.comboBox_Operator.currentText()
-    #     additional_info = self.plainTextEdit_Additional_Info.toPlainText()
-    #
-    #     data_checker(shift, shift_number, TBM_number, fault_code, fault_code_description, fault_delay, operator)
-    #
-    #     text_line = "'{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}'".format(TBM_number,
-    #                                                                                        fault_code,
-    #                                                                                        fault_code_description,
-    #                                                                                        fault_delay,
-    #                                                                                        operator,
-    #                                                                                        additional_info,
-    #                                                                                        date.strftime('%Y-%m-%d'),
-    #                                                                                        shift_number,
-    #                                                                                        shift)
-    #
-    #     error_message = data_checker(shift, shift_number, TBM_number, fault_code, fault_code_description, fault_delay,
-    #                                  operator).strip()
-    #     self.plainTextEdit_Errors_Message.clear()
-    #     self.plainTextEdit_Errors_Message.insertPlainText(error_message)
-    #
-    #     # if error_message == '':
-    #     # write_data_into_DB(text_line)
 
     def closeEvent(self, event):
         reply = QtWidgets.QMessageBox.question(self, 'Quit',

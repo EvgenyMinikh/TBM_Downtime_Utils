@@ -11,7 +11,7 @@ SOURCE_CSV_FILE_FOR_LISTS = ".\\TBM_List.csv"
 MAIN_UI_FORM_PATH = ".\\Edit_Tool_Main_Window.ui"
 
 # Sources for lists
-SHIFT_TIME = ('', 'День', 'Ночь')
+SHIFT_TIME = ('День', 'Ночь')
 SHIFT_NUMBERS = ('', '1', '2', '3', '4')
 OPERATOR_LIST = (
 '', 'A - Adjuster', 'M - Mechanical', 'O - Operator', 'P - PLC', 'Q - Quality Engineer', 'V - VMI Spec')
@@ -131,10 +131,10 @@ def update_data_in_DB(conn, id, list_data):
         main_window.plainTextEdit_Errors_Message.insertPlainText("Запись обновлена")
 
 
-def read_data_from_DB(conn, date_to_select):
+def read_data_from_DB(conn, date_to_select, shift_to_select):
     cursor = conn.cursor()
     main_window.plainTextEdit_Errors_Message.clear()
-    cursor.execute("SELECT * FROM TBM_Downtimes.dbo.Main WHERE [Date] = '" + date_to_select + "'")
+    cursor.execute("SELECT * FROM TBM_Downtimes.dbo.Main WHERE [Date] = '" + date_to_select + "' AND [Shift Time] = '" + shift_to_select + "'")
 
     raw_data = []
     for row in cursor:
@@ -180,6 +180,7 @@ class main_UI(QtWidgets.QMainWindow):
         self.change_list_values()
 
         # Set list values
+        self.comboBox_Shift_for_Query.addItems(SHIFT_TIME)
         self.comboBox_Shift.addItems(SHIFT_TIME)
         self.comboBox_Shift_Number.addItems(SHIFT_NUMBERS)
         self.comboBox_TBM_number.addItems(TBM_LIST)
@@ -206,7 +207,8 @@ class main_UI(QtWidgets.QMainWindow):
 
     def action_pushButton_Get_Records(self):
         date = (self.dateEdit_Selector.date()).toPyDate().strftime('%Y-%m-%d')
-        raw_data = read_data_from_DB(conn, date)
+        shift_time = self.comboBox_Shift_for_Query.currentText()
+        raw_data = read_data_from_DB(conn, date, shift_time)
         populate_table_with_data(raw_data)
 
     def action_table_click(self):

@@ -135,7 +135,7 @@ class main_Ui(QtWidgets.QMainWindow):
 
         self.plainTextEdit_Errors_Message.setReadOnly(True)
         self.plainTextEdit_Errors_Message.setStyleSheet("background-color: rgb(217, 217, 217);")
-
+        self.plainTextEdit_Additional_Info.insertPlainText('-')
         self.show()
 
     def change_list_values(self):
@@ -150,13 +150,14 @@ class main_Ui(QtWidgets.QMainWindow):
         self.dateEdit_Date = self.findChild(QtWidgets.QDateEdit, 'dateEdit_Date')
         self.dateEdit_Date.setDate(self.current_date)
         self.comboBox_Fault_Code.setCurrentIndex(0)
-        self.comboBox_Shift.setCurrentIndex(0)
-        self.comboBox_Shift_Number.setCurrentIndex(0)
+        #self.comboBox_Shift.setCurrentIndex(0)
+        #self.comboBox_Shift_Number.setCurrentIndex(0)
         self.comboBox_TBM_number.setCurrentIndex(0)
         self.comboBox_Fault_Description.setCurrentIndex(0)
         self.comboBox_Operator.setCurrentIndex(0)
         self.lineEdit_Delay.clear()
         self.plainTextEdit_Additional_Info.clear()
+        self.plainTextEdit_Additional_Info.insertPlainText('-')
         self.plainTextEdit_Errors_Message.clear()
 
     def action_pushButton_Save(self):
@@ -188,6 +189,7 @@ class main_Ui(QtWidgets.QMainWindow):
 
         if error_message == '':
             write_data_into_DB(conn, text_line)
+            self.action_pushButton_Clean()
 
     def closeEvent(self, event):
         reply = QtWidgets.QMessageBox.question(self, 'Quit',

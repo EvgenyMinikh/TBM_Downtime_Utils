@@ -38,7 +38,7 @@
    <widget class="QPushButton" name="pushButton_Get_Records">
     <property name="geometry">
      <rect>
-      <x>230</x>
+      <x>480</x>
       <y>10</y>
       <width>111</width>
       <height>31</height>
@@ -342,6 +342,39 @@
     </property>
     <property name="text">
      <string>ДД.ММ.ГГГГ</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_11">
+    <property name="geometry">
+     <rect>
+      <x>252</x>
+      <y>5</y>
+      <width>41</width>
+      <height>39</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Смена:</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="comboBox_Shift_for_Query">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>15</y>
+      <width>91</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
     </property>
    </widget>
   </widget>

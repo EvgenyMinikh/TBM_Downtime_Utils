@@ -9,6 +9,7 @@ DATABASE_NAME = 'TBM_Downtimes'
 SOURCE_CSV_FILE_FOR_LISTS = ".\\TBM_List.csv"
 MAIN_UI_FORM_PATH = ".\\Main_Window_Form.ui"
 
+VERSION = 'v1.0'
 SHIFT_TIME = ('', 'День', 'Ночь')
 SHIFT_NUMBERS = ('', '1', '2', '3', '4')
 OPERATOR_LIST = ('', 'A - Adjuster', 'M - Mechanical', 'O - Operator', 'P - PLC', 'Q - Quality Engineer', 'V - VMI Spec')
@@ -106,6 +107,7 @@ def write_data_into_DB(conn, db_values):
     else:
         conn.commit()
         main_window.plainTextEdit_Errors_Message.clear()
+        main_window.action_pushButton_Clean()
         main_window.plainTextEdit_Errors_Message.insertPlainText("Данные записаны")
 
 
@@ -135,7 +137,8 @@ class main_Ui(QtWidgets.QMainWindow):
 
         self.plainTextEdit_Errors_Message.setReadOnly(True)
         self.plainTextEdit_Errors_Message.setStyleSheet("background-color: rgb(217, 217, 217);")
-        self.plainTextEdit_Additional_Info.insertPlainText('-')
+
+        self.label_version.setText(VERSION)
         self.show()
 
     def change_list_values(self):
@@ -157,7 +160,6 @@ class main_Ui(QtWidgets.QMainWindow):
         self.comboBox_Operator.setCurrentIndex(0)
         self.lineEdit_Delay.clear()
         self.plainTextEdit_Additional_Info.clear()
-        self.plainTextEdit_Additional_Info.insertPlainText('-')
         self.plainTextEdit_Errors_Message.clear()
 
     def action_pushButton_Save(self):
@@ -189,7 +191,6 @@ class main_Ui(QtWidgets.QMainWindow):
 
         if error_message == '':
             write_data_into_DB(conn, text_line)
-            self.action_pushButton_Clean()
 
     def closeEvent(self, event):
         reply = QtWidgets.QMessageBox.question(self, 'Quit',

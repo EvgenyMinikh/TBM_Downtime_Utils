@@ -10,6 +10,7 @@ DATABASE_NAME = 'TBM_Downtimes'
 SOURCE_CSV_FILE_FOR_LISTS = ".\\TBM_List.csv"
 MAIN_UI_FORM_PATH = ".\\Edit_Tool_Main_Window.ui"
 
+VERSION = 'v1.0'
 # Sources for lists
 SHIFT_TIME = ('День', 'Ночь')
 SHIFT_NUMBERS = ('', '1', '2', '3', '4')
@@ -17,7 +18,7 @@ OPERATOR_LIST = (
 '', 'A - Adjuster', 'M - Mechanical', 'O - Operator', 'P - PLC', 'Q - Quality Engineer', 'V - VMI Spec')
 RECORD_TABLE_HEADERS = (
 'ID', 'Номер\nстанка', 'Код', 'Описание\nсбоя', 'Длительность', 'Оператор', 'Доп.\nинформация', 'Дата', 'Номер\nсмены',
-'Смена', 'ХЗ Что')
+'Смена')
 
 # Source data for TBM list
 TBM_MAX_NUMBER = 49
@@ -194,6 +195,8 @@ class main_UI(QtWidgets.QMainWindow):
         self.tableWidget_Records.setColumnCount(len(RECORD_TABLE_HEADERS))
         self.tableWidget_Records.setHorizontalHeaderLabels(RECORD_TABLE_HEADERS)
         self.tableWidget_Records.resizeColumnsToContents()
+
+        self.label_version.setText(VERSION)
 
         self.show()
 

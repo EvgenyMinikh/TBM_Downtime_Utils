@@ -1,6 +1,10 @@
 .idea/
 .idea
+__pycache__
+build
+dist
 load.py
 test_SQL.py
 Main_Window_Form_test.ui
 mfile.ui
+*.spec
